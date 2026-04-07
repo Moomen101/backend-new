@@ -9,7 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from app.routers.user_router import SECRET_KEY, ALGORITHM 
 
-router = APIRouter(prefix="/sos", tags=["SOS Emergency"]) 
+router = APIRouter(prefix="/sos", tags=["SOS Emergency"])
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/login")
@@ -48,7 +48,7 @@ async def send_sos_signal(
     new_sos = models.sos_request.SoSRequest(
         user_id=int(current_user_id), 
         location=request.location,
-        status="Open"
+        status_sos="Open"
     )
 
     try:

@@ -9,7 +9,7 @@ from app.database import get_db
 from app.models.user import User
 import bcrypt
 
-# الإعدادات
+
 SECRET_KEY = "marwan_secret_key_for_missing_person_app" 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 
@@ -17,7 +17,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 router = APIRouter(prefix="/users", tags=["Users Authentication"])
 
-# --- دوال التشفير ---
+
 def get_password_hash(password: str):
     pwd_bytes = password.encode('utf-8')
     salt = bcrypt.gensalt()
@@ -35,7 +35,7 @@ def create_access_token(data: dict):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-# --- الـ Schemas ---
+
 class UserRegisterRequest(BaseModel):
     name: str
     email: str
@@ -44,11 +44,10 @@ class UserRegisterRequest(BaseModel):
     national_id: str
     age: int
 
-class UserLoginRequest(BaseModel): # الكلاس ده اللي هيخليها JSON
+class UserLoginRequest(BaseModel): 
     national_id: str
     password: str
 
-# --- الـ API Endpoints ---
 
 @router.post("/register")
 def register_user(user_data: UserRegisterRequest, db: Session = Depends(get_db)):
@@ -73,9 +72,9 @@ def register_user(user_data: UserRegisterRequest, db: Session = Depends(get_db))
     db.refresh(new_user)
     return {"message": "User registered successfully", "user_id": new_user.user_id}
 
-@router.post("/login") # التعديل الجوهري هنا
+@router.post("/login") 
 def login_user(login_data: UserLoginRequest, db: Session = Depends(get_db)):
-    # بنبحث بالـ national_id اللي جاي في الـ JSON
+   
     user = db.query(User).filter(User.national_id == login_data.national_id).first()
     
     if not user or not verify_password(login_data.password, user.password_hash):
