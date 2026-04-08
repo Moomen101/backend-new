@@ -7,7 +7,7 @@ from app.database import get_db
 
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from app.routers.user_router import SECRET_KEY, ALGORITHM 
+from app.config import SECRET_KEY, ALGORITHM
 
 router = APIRouter(prefix="/sos", tags=["SOS Emergency"])
 

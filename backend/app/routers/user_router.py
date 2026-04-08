@@ -8,12 +8,11 @@ from passlib.context import CryptContext
 from app.database import get_db
 from app.models.user import User
 import bcrypt
+from fastapi.security import OAuth2PasswordRequestForm
 
 
-SECRET_KEY = "marwan_secret_key_for_missing_person_app" 
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 
-
+from app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from app.dependencies import get_current_user  
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 router = APIRouter(prefix="/users", tags=["Users Authentication"])
 
@@ -44,9 +43,6 @@ class UserRegisterRequest(BaseModel):
     national_id: str
     age: int
 
-class UserLoginRequest(BaseModel): 
-    national_id: str
-    password: str
 
 
 @router.post("/register")
@@ -73,9 +69,9 @@ def register_user(user_data: UserRegisterRequest, db: Session = Depends(get_db))
     return {"message": "User registered successfully", "user_id": new_user.user_id}
 
 @router.post("/login") 
-def login_user(login_data: UserLoginRequest, db: Session = Depends(get_db)):
+def login_user(login_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
    
-    user = db.query(User).filter(User.national_id == login_data.national_id).first()
+    user = db.query(User).filter(User.national_id == login_data.username).first()
     
     if not user or not verify_password(login_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="بيانات الدخول غير صحيحة")
@@ -108,3 +104,7 @@ def get_all_users(db: Session = Depends(get_db)):
         ]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/logout")
+def logout(current_user_id: str = Depends(get_current_user)):
+    return {"message": "تم تسجيل الخروج بنجاح."}
